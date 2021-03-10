@@ -15,12 +15,13 @@ Train: `python3 main.py`
 
 ### Experiment
 
-| 实验时间    | student | student Acc | teacher  | teacher Acc | KD Acc | loss function | epoch | 注释                               |
-| ----------- | ------- | ----------- | -------- | ----------- | ------ | ------------- | ----- | ---------------------------------- |
-| 2021.3.8.11 | CNN     | 0.7511      | DenseNet | 0.8194      | 0.7511 | FitNet        | 30    | initial version                    |
-| 2021.3.8.13 | CNN     | 0.8412      | DenseNet | 0.9273      | 0.8600 | FitNet        | 30    | common version of overfit DenseNet |
-| 2021.3.9.09 | CNN     | 0.8412      | DenseNet | 0.9470      | 0.8667 | FitNet        | 30    | common DenseNet                    |
-| 2021.3.9.10 | CNN     | 0.8412      | DenseNet | 0.9470      | 0.8831 | softmaxT      | 100   | softmaxT loss function             |
-
-
+| TimeLine    | student net | student acc | teacher net | teacher acc | kd acc | loss function | epoch | Comments                         |
+| ----------- | ----------- | ----------- | ----------- | ----------- | ------ | ------------- | ----- | -------------------------------- |
+| 2021.3.8.11 | cnn         | 0.7511      | densenet    | 0.8194      | 0.7511 | fitnet        | 30    | init version                     |
+| 2021.3.8.13 | cnn         | 0.8412      | densenet    | 0.9273      | 0.8600 | fitnet        | 30    | common version, overfit densenet |
+| 2021.3.9.09 | cnn         | 0.8412      | densenet    | 0.9470      | 0.8667 | fitnet        | 30    | common densenet                  |
+| 2021.3.9.10 | cnn         | 0.8412      | densenet    | 0.9470      | 0.8831 | softmaxT      | 100   | softmaxT loss function           |
+| 2021.3.9.15 | cnn         | 0.8412      | densenet    | 0.9470      | 0.8805 | fitnet        | 100   | enlarge epoch number             |
+| 2021.3.9.17 | cnn         | 0.8650      | densenet    | 0.9470      | 0.8841 | fitnet        | 100   | improve cnn acc                  |
+| 2021.3.9.18 | cnn         | 0.8650      | densenet    | 0.9470      | 0.8754 | fitnet        | 100   | change T from 20 to 4            |
 
