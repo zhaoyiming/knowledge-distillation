@@ -1,8 +1,6 @@
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader
 import torchvision
 import torchvision.transforms as transforms
-
-import torch
 
 
 def data():
@@ -25,13 +23,5 @@ def data():
     testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
     trainset = torchvision.datasets.CIFAR10('./data', train=True, transform=train_transforms, download=True)
     train_loader = DataLoader(trainset, batch_size=batch_size, shuffle=False)
-
-    # dataset = torchvision.datasets.CIFAR10('./data', train=True, transform=train_transforms, download=True)
-    # train_length = int(0.9 * len(dataset))
-    # validation_length = len(dataset) - train_length
-    #
-    # train_dataset, validation_dataset = torch.utils.data.random_split(dataset, (train_length, validation_length))
-    # train_loader = DataLoader(train_dataset, batch_size, False)
-    # validation_loader = DataLoader(validation_dataset, batch_size, False)
 
     return train_loader, testloader

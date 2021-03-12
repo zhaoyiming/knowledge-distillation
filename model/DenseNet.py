@@ -4,10 +4,11 @@ import torch.nn.functional as F
 import numpy as np
 import math
 
+
 class Bottleneck(nn.Module):
     def __init__(self, nChannels, growthRate):
         super(Bottleneck, self).__init__()
-        interChannels = 4*growthRate
+        interChannels = 4 * growthRate
         self.bn1 = nn.BatchNorm2d(nChannels)
         self.conv1 = nn.Conv2d(nChannels, interChannels, kernel_size=1,
                                bias=False)
@@ -21,6 +22,7 @@ class Bottleneck(nn.Module):
         out = torch.cat((x, out), 1)
         return out
 
+
 class SingleLayer(nn.Module):
     def __init__(self, nChannels, growthRate):
         super(SingleLayer, self).__init__()
@@ -32,6 +34,7 @@ class SingleLayer(nn.Module):
         out = self.conv1(F.relu(self.bn1(x)))
         out = torch.cat((x, out), 1)
         return out
+
 
 class Transition(nn.Module):
     def __init__(self, nChannels, nOutChannels):
@@ -50,27 +53,27 @@ class DenseNet(nn.Module):
     def __init__(self, growthRate=12, depth=100, reduction=0.5, nClasses=10, bottleneck=True):
         super(DenseNet, self).__init__()
 
-        nDenseBlocks = (depth-4) // 3
+        nDenseBlocks = (depth - 4) // 3
         if bottleneck:
             nDenseBlocks //= 2
 
-        nChannels = 2*growthRate
+        nChannels = 2 * growthRate
         self.conv1 = nn.Conv2d(3, nChannels, kernel_size=3, padding=1,
                                bias=False)
         self.dense1 = self._make_dense(nChannels, growthRate, nDenseBlocks, bottleneck)
-        nChannels += nDenseBlocks*growthRate
-        nOutChannels = int(math.floor(nChannels*reduction))
+        nChannels += nDenseBlocks * growthRate
+        nOutChannels = int(math.floor(nChannels * reduction))
         self.trans1 = Transition(nChannels, nOutChannels)
 
         nChannels = nOutChannels
         self.dense2 = self._make_dense(nChannels, growthRate, nDenseBlocks, bottleneck)
-        nChannels += nDenseBlocks*growthRate
-        nOutChannels = int(math.floor(nChannels*reduction))
+        nChannels += nDenseBlocks * growthRate
+        nOutChannels = int(math.floor(nChannels * reduction))
         self.trans2 = Transition(nChannels, nOutChannels)
 
         nChannels = nOutChannels
         self.dense3 = self._make_dense(nChannels, growthRate, nDenseBlocks, bottleneck)
-        nChannels += nDenseBlocks*growthRate
+        nChannels += nDenseBlocks * growthRate
 
         self.bn1 = nn.BatchNorm2d(nChannels)
         self.fc = nn.Linear(nChannels, nClasses)
@@ -104,13 +107,14 @@ class DenseNet(nn.Module):
         out = F.log_softmax(self.fc(out), dim=1)
         return out
 
+
 def loss_fn(outputs, labels):
     return nn.CrossEntropyLoss()(outputs, labels)
 
 
 def accuracy(outputs, labels):
     outputs = np.argmax(outputs, axis=1)
-    return np.sum(outputs==labels)/float(labels.size)
+    return np.sum(outputs == labels) / float(labels.size)
 
 
 # maintain all metrics required in this dictionary- these are used in the training and evaluation loops

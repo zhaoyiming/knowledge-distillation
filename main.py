@@ -1,5 +1,6 @@
 from torch.utils.data import Dataset, DataLoader
 from model import CNN, DenseNet
+import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 import argparse
@@ -17,15 +18,13 @@ import numpy as np
 from data import data
 from eval import evaluate, evaluate_kd
 
+# 修改参数来进行模式切换
 parser = argparse.ArgumentParser()
 parser.add_argument('--model_dir', default='experiments/cnn_distill',
                     help="Directory containing params.json")
 
 
 def train(model, optimizer, loss_fn, dataloader, metrics, params):
-    """Train the model on `num_steps` batches
-    """
-
     model.train()
     # summary for current training loop and a running average object for loss
     summ = []
@@ -73,9 +72,6 @@ def train(model, optimizer, loss_fn, dataloader, metrics, params):
 
 def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer,
                        loss_fn, metrics, params, model_dir, restore_file=None):
-    """Train the model and evaluate every epoch.
-    """
-
     global scheduler
     best_val_acc = 0.0
 
@@ -84,7 +80,7 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer,
         scheduler = StepLR(optimizer, step_size=100, gamma=0.1)
     # for cnn models, num_epoch is always < 100, so it's intentionally not using scheduler here
     elif params.model_version == "cnn":
-        scheduler = StepLR(optimizer, step_size=100, gamma=0.2)
+        scheduler = StepLR(optimizer, step_size=100, gamma=0.1)
     t0 = time.time()
     for epoch in range(params.num_epochs):
 
@@ -124,9 +120,6 @@ def train_and_evaluate(model, train_dataloader, val_dataloader, optimizer,
 
 # Defining train_kd & train_and_evaluate_kd functions
 def train_kd(model, teacher_model, optimizer, loss_fn_kd, dataloader, metrics, params):
-    """Train the model on `num_steps` batches
-    """
-
     # set model to training mode
     model.train()
     teacher_model.eval()
@@ -145,9 +138,10 @@ def train_kd(model, teacher_model, optimizer, loss_fn_kd, dataloader, metrics, p
             with torch.no_grad():
                 output_teacher_batch = teacher_model(train_batch)
             output_teacher_batch = output_teacher_batch.to(device)
-
+            loss = CNN.loss_sf_kd_sp(output_batch, output_teacher_batch, params)
+            # loss = CNN.loss_fn_kd_sp(output_batch, labels_batch, output_teacher_batch, params)
             # loss = loss_fn_kd(output_batch, output_teacher_batch, params)
-            loss = loss_fn_kd(output_batch, labels_batch, output_teacher_batch, params)
+            # loss = loss_fn_kd(output_batch, labels_batch, output_teacher_batch, params)
             # clear previous gradients, compute gradients of all variables wrt loss
             optimizer.zero_grad()
             loss.backward()
@@ -181,8 +175,6 @@ def train_kd(model, teacher_model, optimizer, loss_fn_kd, dataloader, metrics, p
 
 def train_and_evaluate_kd(model, teacher_model, train_dataloader, val_dataloader, optimizer,
                           loss_fn_kd, metrics, params, model_dir, restore_file=None):
-    """Train the model and evaluate every epoch.
-    """
     global scheduler
     best_val_acc = 0.0
 
@@ -194,8 +186,6 @@ def train_and_evaluate_kd(model, teacher_model, train_dataloader, val_dataloader
         scheduler = StepLR(optimizer, step_size=100, gamma=0.2)
 
     for epoch in range(params.num_epochs):
-
-
 
         # Run one epoch
         logging.info("Epoch {}/{}".format(epoch + 1, params.num_epochs))
